@@ -183,16 +183,16 @@ class Operation
       if e.http_code == 417
         puts "#{safe_remote_url} is running a different minor version of taps."
         puts "#{e.response.to_s}"
-        exit(1)
+        throw :server_error, e, "#{safe_remote_url} is running a different minor version of taps.\n#{e.response.to_s}"
       else
-        raise
+        throw :server_error, e
       end
-    rescue RestClient::Unauthorized
+    rescue RestClient::Unauthorized => e
       puts "Bad credentials given for #{safe_remote_url}"
-      exit(1)
-    rescue Errno::ECONNREFUSED
+      throw :server_error, e, "Bad credentials given for #{safe_remote_url}" 
+    rescue Errno::ECONNREFUSED => e
       puts "Can't connect to #{safe_remote_url}. Please check that it's running"
-      exit(1)
+      throw :server_error, e, "Can't connect to #{safe_remote_url}. Please check that it's running"
     end
   end
 
